@@ -1,20 +1,15 @@
 package com.example.android.nodemcu;
 
-import android.nfc.Tag;
+import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import java.net.HttpURLConnection;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.URL;
-
-import static android.webkit.WebSettings.PluginState.ON;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         }
     });
     hi from github
-
+hi from studio
   */
 
 
