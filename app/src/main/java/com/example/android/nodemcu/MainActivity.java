@@ -1,17 +1,24 @@
 package com.example.android.nodemcu;
 
+import android.app.AlertDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+    Button toggleOn,toggleOff;
+    Request request;
+    AlertDialog builder;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -19,37 +26,40 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        toggleOn = (Button) findViewById(R.id.toggleON);
+        toggleOff = (Button) findViewById(R.id.toggleOFF);
+
+        toggleOn.setOnClickListener(this);
+        request = new Request();
+        builder = new AlertDialog.Builder(this)
+                .setTitle("Loading")
+                .setCancelable(false)
+                .setMessage("Please wait till the loading completes")
+                .create();
     }
 
-    /*
-    String base_url = "http://192.168.43.209";
+//    String base_url = "http://192.168.43.209";
+//
+//    Button toggleOn = (Button) findViewById(R.id.toggleButton);
+//    toggleOn.setOnClickListener(new View.OnClickListener()
+//    {
+//        public void onClick (View v)
+//        {
+//            String on = base_url + "/LED=ON";
+//            try {
+//                URL url = new URL("on");
+//                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//                con.setRequestMethod("GET");
+//            } catch (Exception e) {
+//            }
+//        }
+//    });
+//    hi from github
+//hi from studio
 
-    Button toggle = (Button) findViewById(R.id.toggleButton);
-    toggle.setOnClickListener(new View.OnClickListener()
+    public void toggleON()
     {
-        public void onClick (View v)
-        {
-            String on = base_url + "/LED=ON";
-            try {
-                URL url = new URL("on");
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setRequestMethod("GET");
-            } catch (Exception e) {
-            }
-        }
-    });
-    hi from github
-hi from studio
-  */
-
-
-
-
-    public void toggleON(View v)
-    {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
-        StrictMode.setThreadPolicy(policy);
 
         String paramValue="/LED=ON";
 
@@ -71,18 +81,36 @@ hi from studio
                 x.setText("Turned ON");
             }
         } catch (Exception e) {
-            Log.e(TAG, "Couldn't make request in ON", e);
+            e.printStackTrace();
 
         }
 
     }
 
+    private class Request extends AsyncTask<Boolean,Void,Void>{
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            builder.dismiss();
+        }
 
-    public void toggleOFF(View v)
+        @Override
+        protected Void doInBackground(Boolean... params) {
+            if(params[0]==true)
+                toggleON();
+            else if (params[0]==false)
+                toggleOFF();
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            builder.show();
+        }
+    }
+
+
+    public void toggleOFF()
     {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
-        StrictMode.setThreadPolicy(policy);
 
         String paramValue="/LED=OFF";
 
@@ -105,6 +133,15 @@ hi from studio
             }
         } catch (Exception e) {
             Log.e(TAG, "Couldn't make request in OFF", e);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.toggleON){
+            request.execute(true);
+        }else if(v.getId()==R.id.toggleOFF){
+            request.execute(false);
         }
     }
 }
