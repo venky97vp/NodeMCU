@@ -3,24 +3,26 @@ package com.example.android.nodemcu;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button toggleOn,toggleOff;
-    Request request;
+    Button toggleOn, toggleOff;
+    HttpRequest request;
     AlertDialog builder;
 
     private static final String TAG = MainActivity.class.getName();
+    private TextView mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +31,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         toggleOn = (Button) findViewById(R.id.toggleON);
         toggleOff = (Button) findViewById(R.id.toggleOFF);
+        mTextView = (TextView) findViewById(R.id.text);
 
         toggleOn.setOnClickListener(this);
-        request = new Request();
+        request = new HttpRequest();
         builder = new AlertDialog.Builder(this)
                 .setTitle("Loading")
                 .setCancelable(false)
@@ -58,36 +61,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    hi from github
 //hi from studio
 
-    public void toggleON()
-    {
+    public void toggleON() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://192.168.137.96/LED=ON";
 
-        String paramValue="/LED=ON";
-
-        //String on ="http://192.168.43.209";
-        try {
-
-           // String yourURLStr = "http://192.168.43.209" + java.net.URLEncoder.encode(paramValue, "UTF-8");
-
-            InetAddress addr= InetAddress.getByName("192.168.43.209"+"/LED=ON");
-            URL url = new URL("http://"+addr.getHostAddress());
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setReadTimeout(10000 /* milliseconds */);
-            con.setConnectTimeout(15000 /* milliseconds */);
-            con.setRequestMethod("GET");
-            con.connect();
-            if(con.getResponseCode() == 200)
-            {
-                TextView x= (TextView) findViewById(R.id.text);
-                x.setText("Turned ON");
+// HttpRequest a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        mTextView.setText("Response is: " + response.substring(0, 500));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mTextView.setText("That didn't work!");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        });
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
 
-        }
+//        String paramValue="/LED=ON";
+//
+//        //String on ="http://192.168.43.209";
+//        try {
+//
+//           // String yourURLStr = "http://192.168.43.209" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+//
+//            InetAddress addr= InetAddress.getByName("192.168.137.96"+"/LED=ON");
+//            URL url = new URL("http://"+addr.getHostAddress());
+//            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//            con.setReadTimeout(10000 /* milliseconds */);
+//            con.setConnectTimeout(15000 /* milliseconds */);
+//            con.setRequestMethod("GET");
+//            con.connect();
+//            if(con.getResponseCode() == 200)
+//            {
+//                TextView x= (TextView) findViewById(R.id.text);
+//                x.setText("Turned ON");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//
+//        }
 
     }
 
-    private class Request extends AsyncTask<Boolean,Void,Void>{
+    private class HttpRequest extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected void onPostExecute(Void aVoid) {
             builder.dismiss();
@@ -95,9 +116,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected Void doInBackground(Boolean... params) {
-            if(params[0]==true)
+            if (params[0] == true)
                 toggleON();
-            else if (params[0]==false)
+            else if (params[0] == false)
                 toggleOFF();
             return null;
         }
@@ -109,38 +130,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    public void toggleOFF()
-    {
+    public void toggleOFF() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://www.google.com";
 
-        String paramValue="/LED=OFF";
+        builder.show();
 
-       // String on ="http://192.168.43.209";
-        try {
+// HttpRequest a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        mTextView.setText("Response is: " + response.substring(0, 500));
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        mTextView.setText("That didn't work!");
+                    }
+                }
+                );
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
 
-            //String yourURLStr = "http://192.168.43.209" + java.net.URLEncoder.encode(paramValue, "UTF-8");
-
-            InetAddress addr= InetAddress.getByName("192.168.43.209"+"/LED=OFF");
-            URL url = new URL("http://"+addr.getHostAddress());
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setReadTimeout(10000 /* milliseconds */);
-            con.setConnectTimeout(15000 /* milliseconds */);
-            con.setRequestMethod("GET");
-            con.connect();
-            if(con.getResponseCode() == 200)
-            {
-                TextView x= (TextView) findViewById(R.id.text);
-                x.setText("Turned OFF");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Couldn't make request in OFF", e);
-        }
+//        String paramValue="/LED=OFF";
+//
+//       // String on ="http://192.168.43.209";
+//        try {
+//
+//            //String yourURLStr = "http://192.168.43.209" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+//
+//            InetAddress addr= InetAddress.getByName("192.168.137.96"+"/LED=OFF");
+//            URL url = new URL("http://"+addr.getHostAddress());
+//            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//            con.setReadTimeout(10000 /* milliseconds */);
+//            con.setConnectTimeout(15000 /* milliseconds */);
+//            con.setRequestMethod("GET");
+//            con.connect();
+//            if(con.getResponseCode() == 200)
+//            {
+//                TextView x= (TextView) findViewById(R.id.text);
+//                x.setText("Turned OFF");
+//            }
+//        } catch (Exception e) {
+//            Log.e(TAG, "Couldn't make request in OFF", e);
+//        }
     }
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.toggleON){
+        if (v.getId() == R.id.toggleON) {
             request.execute(true);
-        }else if(v.getId()==R.id.toggleOFF){
+        } else if (v.getId() == R.id.toggleOFF) {
             request.execute(false);
         }
     }
